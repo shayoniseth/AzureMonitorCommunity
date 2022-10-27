@@ -51,7 +51,7 @@ function Get-UserWorkspace
         [Parameter(Mandatory=$true)][string] $WorkspaceName
     )
 
-    $workspace = Get-AzOperationalInsightsWorkspace -ResourceGroupName $rgNameWorkspace -Name $workspaceName
+    $workspace = Get-AzOperationalInsightsWorkspace -ResourceGroupName $ResourceGroupName -Name $workspaceName
     return $workspace
 }
 
@@ -123,7 +123,7 @@ function Get-DCRArmTemplate
         [Parameter(Mandatory=$true)][string] $FolderPath
     )
 
-    $dcrJson = Get-DCRJson -ResourceGroupName $rgNameWorkspace -WorkspaceName $workspaceName -PlatformType $PlatformType
+    $dcrJson = Get-DCRJson -ResourceGroupName $ResourceGroupName -WorkspaceName $workspaceName -PlatformType $PlatformType
     
     #ARM Template File
     $schema = "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"
@@ -595,13 +595,12 @@ function Get-DataFlows
     return $dataFlows
 }
 
-
-Connect-AzAccount
-Select-AzSubscription -Subscription $subId
-
-$rgNameWorkspace = 'rg-jamui-workspace'
-$workspaceName = 'workspace-jamui-1'
-
+#Requires -Modules Az.Accounts, Az.OperationalInsights
+# connect if we dont the context already.
+if ($null -eq (Get-AzContext | Where-Object {$_.Subscription.id -eq $SubscriptionId})) {
+Connect-AzAccount | out-null
+Select-AzSubscription -Subscription $subId | out-null
+}
 Write-Output "Subscription Id: $($SubscriptionId)"
 Write-Output "Resource Group: $($ResourceGroupName)"
 Write-Output "Workspace Name: $($WorkspaceName)"
